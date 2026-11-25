@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Katalog Jasa</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      --bg: #f6f4fb; --card: #ffffff; --text: #1f1b2e; --muted: #6b6880;
+      --primary: #6d3fd1; --primary-soft: #ede6fc; --danger: #d64545;
+      --ok: #1f9d6b; --border: #e4e0ef; --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    header { background: var(--primary); color: #fff; padding: 20px 0; }
+    header .wrap { padding: 0 24px; }
+    header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    header h1 { font-size: 1.5rem; }
+    header p { opacity: .85; font-size: .9rem; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    main { padding: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .stat span { color: var(--muted); font-size: .8rem; }
+    .stat b { display: block; font-size: 1.3rem; }
+    .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .panel h2 { font-size: 1.05rem; margin-bottom: 12px; }
+    label { display: block; font-size: .8rem; color: var(--muted); margin: 10px 0 4px; }
+    input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px; font: inherit; background: #fff; }
+    textarea { resize: vertical; min-height: 60px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: .9rem; }
+    .check input { width: auto; }
+    button { border: 0; border-radius: 9px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: #fff; width: 100%; margin-top: 14px; }
+    .btn-ghost { background: transparent; color: var(--muted); width: 100%; margin-top: 6px; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 160px; }
+    .toolbar select { width: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .badge { align-self: flex-start; background: var(--primary-soft); color: var(--primary); font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+    .card h3 { font-size: 1rem; }
+    .card .desc { color: var(--muted); font-size: .85rem; flex: 1; }
+    .card .price { font-weight: 700; font-size: 1.05rem; }
+    .meta { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); }
+    .status { font-weight: 600; }
+    .status.on { color: var(--ok); } .status.off { color: var(--danger); }
+    .actions { display: flex; gap: 8px; margin-top: 8px; }
+    .actions button { flex: 1; font-size: .85rem; padding: 7px; }
+    .btn-edit { background: var(--primary-soft); color: var(--primary); }
+    .btn-del { background: #fde8e8; color: var(--danger); }
+    .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      main { padding: 16px; }
+      header .wrap { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div>
+        <h1>Katalog Jasa</h1>
+        <p>Marketplace jasa &amp; talent — NestJS + PostgreSQL + Prisma</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stats" id="stats"></section>
+
+    <section class="layout">
+      <form class="panel" id="form">
+        <h2 id="formTitle">Tambah Jasa</h2>
+        <input type="hidden" id="id" />
+        <label for="nama">Nama jasa</label>
+        <input id="nama" required maxlength="100" placeholder="cth. Desain Logo UMKM" />
+        <div class="row">
+          <div>
+            <label for="kategori">Kategori</label>
+            <input id="kategori" required maxlength="50" placeholder="Desain" />
+          </div>
+          <div>
+            <label for="harga">Harga (Rp)</label>
+            <input id="harga" type="number" min="0" required placeholder="150000" />
+          </div>
+        </div>
+        <label for="penyedia">Penyedia</label>
+        <input id="penyedia" required maxlength="100" placeholder="Nama talent / studio" />
+        <label for="deskripsi">Deskripsi</label>
+        <textarea id="deskripsi" placeholder="Opsional"></textarea>
+        <label for="rating">Rating (0–5)</label>
+        <input id="rating" type="number" min="0" max="5" step="0.1" value="0" />
+        <label class="check"><input type="checkbox" id="tersedia" checked /> Tersedia</label>
+        <button class="btn-primary" type="submit" id="submitBtn">Simpan</button>
+        <button class="btn-ghost" type="button" id="cancelBtn" hidden>Batal edit</button>
+      </form>
+
+      <div>
+        <div class="toolbar">
+          <input id="search" placeholder="Cari nama atau penyedia..." />
+          <select id="filterKategori"><option value="">Semua kategori</option></select>
+        </div>
+        <div class="grid" id="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/jasa';
+    let data = [];
+    const $ = (id) => document.getElementById(id);
+    const rupiah = (n) => 'Rp' + Number(n).toLocaleString('id-ID');
+
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    async function request(url, options = {}) {
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+      const body = await res.json();
+      if (!res.ok) throw new Error(Array.isArray(body.message) ? body.message.join(', ') : body.message);
+      return body;
+    }
+
+    async function loadStats() {
+      const s = await request(API + '/statistik');
+      $('stats').innerHTML = `
+        <div class="stat"><span>Total jasa</span><b>${s.totalJasa}</b></div>
+        <div class="stat"><span>Tersedia</span><b>${s.jasaTersedia}</b></div>
+        <div class="stat"><span>Rata-rata harga</span><b>${rupiah(s.rataRataHarga)}</b></div>
+        <div class="stat"><span>Rata-rata rating</span><b>${s.rataRataRating}</b></div>`;
+      const sel = $('filterKategori');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Semua kategori</option>' +
+        s.perKategori.map((k) => `<option value="${k.kategori}">${k.kategori} (${k.jumlah})</option>`).join('');
+      sel.value = current;
+    }
+
+    async function loadList() {
+      const kategori = $('filterKategori').value;
+      data = await request(kategori ? `${API}/cari?kategori=${encodeURIComponent(kategori)}` : API);
+      render();
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function render() {
+      const q = $('search').value.toLowerCase();
+      const items = data.filter((j) => (j.nama + ' ' + j.penyedia).toLowerCase().includes(q));
+      $('list').innerHTML = items.length ? items.map((j) => `
+        <article class="card">
+          <span class="badge">${escapeHtml(j.kategori)}</span>
+          <h3>${escapeHtml(j.nama)}</h3>
+          <p class="desc">${escapeHtml(j.deskripsi || 'Tidak ada deskripsi')}</p>
+          <p class="price">${rupiah(j.harga)}</p>
+          <div class="meta">
+            <span>${escapeHtml(j.penyedia)} · ★ ${j.rating}</span>
+            <span class="status ${j.tersedia ? 'on' : 'off'}">${j.tersedia ? 'Tersedia' : 'Penuh'}</span>
+          </div>
+          <div class="actions">
+            <button class="btn-edit" onclick="editJasa(${j.id})">Edit</button>
+            <button class="btn-del" onclick="hapusJasa(${j.id})">Hapus</button>
+          </div>
+        </article>`).join('') : '<p class="empty">Belum ada jasa.</p>';
+    }
+
+    function resetForm() {
+      $('form').reset();
+      $('id').value = '';
+      $('rating').value = 0;
+      $('formTitle').textContent = 'Tambah Jasa';
+      $('submitBtn').textContent = 'Simpan';
+      $('cancelBtn').hidden = true;
+    }
+
+    window.editJasa = (id) => {
+      const j = data.find((x) => x.id === id);
+      $('id').value = j.id;
+      ['nama', 'kategori', 'harga', 'penyedia', 'rating'].forEach((k) => ($(k).value = j[k]));
+      $('deskripsi').value = j.deskripsi || '';
+      $('tersedia').checked = j.tersedia;
+      $('formTitle').textContent = 'Edit Jasa #' + j.id;
+      $('submitBtn').textContent = 'Simpan perubahan';
+      $('cancelBtn').hidden = false;
+      $('form').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.hapusJasa = async (id) => {
+      if (!confirm('Hapus jasa ini?')) return;
+      try {
+        await request(`${API}/${id}`, { method: 'DELETE' });
+        toast('Jasa dihapus');
+        refresh();
+      } catch (e) { toast(e.message); }
+    };
+
+    $('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        nama: $('nama').value.trim(),
+        kategori: $('kategori').value.trim(),
+        harga: parseInt($('harga').value, 10),
+        penyedia: $('penyedia').value.trim(),
+        rating: parseFloat($('rating').value) || 0,
+        tersedia: $('tersedia').checked,
+      };
+      const desk = $('deskripsi').value.trim();
+      if (desk) payload.deskripsi = desk;
+      const id = $('id').value;
+      try {
+        await request(id ? `${API}/${id}` : API, { method: id ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+        toast(id ? 'Jasa diperbarui' : 'Jasa ditambahkan');
+        resetForm();
+        refresh();
+      } catch (err) { toast(err.message); }
+    });
+
+    $('cancelBtn').addEventListener('click', resetForm);
+    $('search').addEventListener('input', render);
+    $('filterKategori').addEventListener('change', loadList);
+
+    function refresh() { loadStats(); loadList(); }
+    refresh();
+  </script>
+</body>
+</html>

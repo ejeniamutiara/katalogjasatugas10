@@ -1,0 +1,28 @@
+// Prisma schema — Katalog Jasa
+// Dokumentasi: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Entitas utama aplikasi: satu jasa/layanan yang ditawarkan talent
+model Jasa {
+  id        Int      @id @default(autoincrement())
+  nama      String   @db.VarChar(100)
+  kategori  String   @db.VarChar(50)
+  deskripsi String?
+  harga     Int
+  penyedia  String   @db.VarChar(100)
+  rating    Float    @default(0)
+  tersedia  Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("jasa")
+}

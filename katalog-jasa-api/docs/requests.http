@@ -1,0 +1,48 @@
+### Uji endpoint (pakai ekstensi VS Code "REST Client", atau salin ke Postman/Thunder Client)
+@base = http://localhost:3000/jasa
+
+### 1. READ semua jasa
+GET {{base}}
+
+### 2. CREATE jasa baru
+POST {{base}}
+Content-Type: application/json
+
+{
+  "nama": "Jasa Foto Produk",
+  "kategori": "Fotografi",
+  "deskripsi": "10 foto produk + edit",
+  "harga": 200000,
+  "penyedia": "Ejenia Studio",
+  "rating": 4.9
+}
+
+### 3. READ satu jasa
+GET {{base}}/1
+
+### 4. UPDATE jasa
+PATCH {{base}}/1
+Content-Type: application/json
+
+{
+  "harga": 175000,
+  "tersedia": false
+}
+
+### 5. DELETE jasa
+DELETE {{base}}/10
+
+### 6. Validasi gagal (harus 400 Bad Request)
+POST {{base}}
+Content-Type: application/json
+
+{
+  "nama": "",
+  "harga": -1
+}
+
+### 7. (OPSIONAL) Filter dengan where
+GET {{base}}/cari?kategori=desain&tersedia=true&maxHarga=300000
+
+### 8. (OPSIONAL) Statistik dengan count / aggregate / groupBy
+GET {{base}}/statistik
